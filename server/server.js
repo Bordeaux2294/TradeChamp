@@ -6,7 +6,7 @@ require('dotenv').config();
 const express = require('express'); // import express server
 const app = express(); // initialize express server
 const cors = require('cors'); // import CORS for origin security -> also mitigates the proxy technique used in REACT to allow API requests
-
+const BlacklistedOrigin = require('./Errors/errors')
 // creating the PORT number as a constant either from the env variables or a designated port being 7000
 const PORT = process.env.PORT || 7000; 
 const DEV_ALLOWED_ORIGIN = process.env.DEV_ALLOWED_ORIGIN !== ''; // checks if env variable for dev allowed origin is empty
@@ -34,6 +34,9 @@ if(PROD_ALLOWED_ORIGIN){
 
 // MIDDLEWARES HERE ->
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // using cors to differentiate between origins to allow to send requests to API
 app.use(cors({
   origin: function(origin, callback){
@@ -49,11 +52,26 @@ app.use(cors({
 
     }else{
       //TODO: new Error requires proper error  in the Error Folder
-      return callback(new Error("NOT ALLOWED BY CORS!")); // error if origin has not been taken into account
+      return callback(new BlacklistedOrigin(origin)); // error if origin has not been taken into account
 
     }
   }
 }));
+
+
+// global error handler -> used mainly in development for error tracing. All routes should use the global error handler to trace and handle errors
+
+app.use((error, request, response, next) => {
+  const statusCode = error.statusCode || 500;
+  response.status(statusCode).json({
+      status: 'error',
+      message: error.message,
+      origin: error.origin || null,
+      stack: process.env.ENVIRONMENT === 'production' ? null : error.stack,
+  });
+  console.error(error.stack);
+});
+
 
 
 
