@@ -1,47 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
-import {useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchData, submitData } from './api/apiClient';
+import SignIn from './pages/SignIn/SignIn';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+/**
+ * The main App component.
+ * 
+ * This component fetches data when it mounts and provides a button to submit data.
+ * It manages the loading state and displays fetched data or a loading message.
+ */
 
-function App() {
+const App = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // testing api request -> REMOVE WHEN READY FOR DEVELOPMENT
-
-  useEffect(()=>{
-    async function test(){
+  useEffect(() => {
+    const getData = async () => {
       try {
-        const response = await fetch('http://localhost:1738/test');
-        if(response.ok){
-          console.log(await response.text())
-        }else{
-          console.log("RESPONSE WAS NOT OK")
-        }
+        const result = await fetchData();
+        setData(result);
       } catch (error) {
-        console.log("AN ERROR OCCURED -> ", error)
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    getData();
+  }, []);
+
+
+  // Function to handle form submission
+  const handleSubmit = async () => {
+    try {
+      const result =  await submitData({ key: 'value'});
+    } catch (error) {
+      console.error('Error submitting data:', error);
     }
-    test()
-  }, )
+  };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-
+  
+  // Render the fetched data and provide a button to submit data
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/signin" component={SignIn} />
+      </Switch>
+    </Router>
   );
-}
+
+};
 
 export default App;

@@ -1,0 +1,9 @@
+{
+  "userID": 8,
+  "username": "mary_doe",
+  "email": "mary.doe@example.com",
+  "role": "regular",
+  "active": "offline",
+  "coins": 0,
+  "stockID": null
+}

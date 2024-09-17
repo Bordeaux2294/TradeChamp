@@ -7,6 +7,9 @@ const express = require('express'); // import express server
 const app = express(); // initialize express server
 const cors = require('cors'); // import CORS for origin security -> also mitigates the proxy technique used in REACT to allow API requests
 const BlacklistedOrigin = require('./Errors/errors')
+const RegisterRouter = require('./UserRoutes/Register_Route/register')
+
+
 // creating the PORT number as a constant either from the env variables or a designated port being 7000
 const PORT = process.env.PORT || 7000; 
 const DEV_ALLOWED_ORIGIN = process.env.DEV_ALLOWED_ORIGIN !== ''; // checks if env variable for dev allowed origin is empty
@@ -36,6 +39,8 @@ if(PROD_ALLOWED_ORIGIN){
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+app.use('/api', RegisterRouter);
 
 // using cors to differentiate between origins to allow to send requests to API
 app.use(cors({
@@ -79,9 +84,13 @@ app.use((error, request, response, next) => {
 
 // TEST ROUTE -> REMOVE WHEN READY FOR DEVELOPMENT
 
-// app.get('/test', (req,res) => {
-//   res.status(200).send("RECIEVED!")
+// app.get('/api/test', (req,res) => {
+//   res.status(200).send("RECEIVED!")
 // });
+
+// app.post('/api/test', (req,res) =>{
+//   res.status(200).send("POST RECEIVED!")
+// })
 
 
 // express server listenning on port
